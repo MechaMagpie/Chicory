@@ -26,3 +26,28 @@ function disjunction(funs) {
 	}
 }
 
+/*
+* This is one of the major concessions made. C has a staggering amount of
+* numerical constant formats, most of them largely unused in practice.
+*/
+class Constant extends Node {}
+const parseConstant = disjunction([parseIntConstant, parseFloatConstant])
+
+class IntConstant extends Constant {}
+const parseIntConstant = disjunction([
+	parseHexConstant, parseDecConstant, parseOctConstant])
+
+class HexConstant extends IntConstant {}
+const parseHexConstant = singleReg(/0[xX][0-9]+/, HexConstant)
+
+class DecConstant extends IntConstant {}
+const parseDecConstant = singleReg(/[1-9][0-9]*/, DecConstant)
+
+class OctConstant extends IntConstant {}
+const parseOctConstant = singleReg(/0[0-9]+/, OctConstant)
+
+class FloatConstant extends Constant {}
+const parseFloatConstant = disjunction([parseFraction, parseExponential])
+const parseFraction = singleReg(/[0-9]*\.[0-9]+([eE][0-9]+)?/, FloatConstant)
+const parseExponential = singleReg(/[0-9]+[eE][0-9]+/, FloatConstant)
+
