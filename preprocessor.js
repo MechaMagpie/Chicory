@@ -21,7 +21,7 @@ class TranslationUnit {
 	}
 }
 
-const cComment = /(?:\/\/.*$)|(?:\/\*(?:[^*]|\*(?!\/))*\*\/)/mug
+const cComment = /(?:\/\/.*$)|(?:\/\*(?:[^*]|\*(?!\/))*\*\/)/mg
 function stripComments(sources) {
 	let output = []
 	function regexMatchAll(src, reg, arr) {

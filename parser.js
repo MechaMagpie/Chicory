@@ -7,50 +7,22 @@ class Node {
 	}
 }
 
-// Expressions
-class Expression extends Node
-function parseExpression(buffer) {
-	let expresions = [], res
-	if (res = parseAssigmnentExpression(buffer)) {
-		buffer = res[1]
-		expressions.push(res[0])
-		while (buffer[0].text == ',') {
-			if (!res = parseAssigmnentExpression(buffer.slice(1)))
-				break
-			buffer = res[1]
-			expressions.push(res[0])
+function singleReg(regex, type) {
+	return function (buffer) {
+		let res = regex.match(buffer[0])
+		if (res && res[0].length == buffer[0].length) {
+			return [new type(val = buffer[0]), buffer.slice(1)]
 		}
 	}
-	if (expressions.length == 0)
+}
+
+function disjunction(funs) {
+	return function(buffer) {
+		for (fun of funs) {
+			let res = fun(buffer)
+			if (res) return res
+		}
 		return false
-	else
-		return [new Expression({AssignmentExpressions: expressions}), buffer]
+	}
 }
 
-function parseAssigmnentExpression(buffer) {
-	
-}
-
-class Constant extends Node
-function parseConstant(buffer) {
-	
-}
-
-function parseIntegerConstant(buffer) {
-
-}
-
-const decimalConstant = /[1-9][0-9]*/
-class DecimalConstant extends Constant
-function parseDecimalConstant(buffer) {
-	if (decimalconstant.match(buffer[0].text))
-		return [new DecimalConstant({value : buffer[0]}), buffer.slice(1)]
-}
-
-const identifier = /[_A-z][_A-z0-9]*/
-class Identifier extends Node
-function parseIdentifier(buffer) {
-	if (identifier.match(buffer[0].text))
-		return [new Identifier({name: buffer[0]}), buffer.slice(1)]
-	else return false
-}
