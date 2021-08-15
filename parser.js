@@ -39,7 +39,7 @@ const parseIntConstant = disjunction([
 	parseHexConstant, parseDecConstant, parseOctConstant])
 
 class HexConstant extends IntConstant {}
-const parseHexConstant = singleReg(/0[xX][0-9]+/, HexConstant)
+const parseHexConstant = singleReg(/0[xX][0-9A-Fa-f]+/, HexConstant)
 
 class DecConstant extends IntConstant {}
 const parseDecConstant = singleReg(/[1-9][0-9]*/, DecConstant)
