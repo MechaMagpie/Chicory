@@ -11,7 +11,7 @@ function addX(regex) {
 		if (m) {
 			let j = regex.lastIndex
 			dest.push(
-				new LexToken(i, j, m[0]})
+				new LexToken(i, j, m[0]))
 			return j
 		} else return false
 	}
@@ -30,10 +30,10 @@ const ident = /[_A-z][_A-z0-9]*/y
 const addId = addX(ident)
 
 const strConst = /".*(?<!\\)"/y
-function addStrConst = addX(strConst)
+const addStrConst = addX(strConst)
 
-const charConst = /L?'./y
-function addCharConst = addX(charConst)
+const charConst = /'(.|(\\.))'/y
+const addCharConst = addX(charConst)
 
 const ws = /\s/y
 function eatWs(src, i) {
