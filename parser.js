@@ -26,13 +26,18 @@ function disjunction(funs) {
 	}
 }
 
+function sequence(...terms) {
+	
+}
+
+const identifier = /[_A-z][_0-9A-z]/
 /*
 * This is one of the major concessions made. C has a staggering amount of
 * numerical constant formats, most of them largely unused in practice.
 */
 class Constant extends Node {}
 const parseConstant = disjunction([
-	parseIntConstant, parseFloatConstant, parseCharConstant])
+	parseIntConstant, parseFloatConstant, parseCharConstant, enumConstant])
 
 class IntConstant extends Constant {}
 const parseIntConstant = disjunction([
@@ -56,6 +61,10 @@ class CharConstant extends Constant {}
 const parseCharConstant = singleReg(
 	/'([^\\']|(\\['"?\\abfnrtv]))'/, CharConstant)
 
+class EnumConstant extends Constant {}
+const parseEnumConstant = singleReg(identifier, EnumConstant)
+
 class StringLiteral extends Node {}
 const parseStringLiteral = singleReg(
 	/"(([^"\\]|(\\["?\\abfnrtv]))*)"/, StringLiteral)
+
