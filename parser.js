@@ -7,12 +7,41 @@ class Node {
 	}
 }
 
+function fixme {
+	return function(buffer) {
+		throw 'TODO'
+	}
+}
+
 function singleReg(type, regex) {
 	return function (buffer) {
 		let res = regex.match(buffer[0])
 		if (res && res[0].length == buffer[0].length) {
 			return [new type({val: buffer[0]}), buffer.slice(1)]
 		}
+	}
+}
+
+function consumePunct(punctuator, buffer) {
+	if (punctuator == buffer[0].text)
+		return buffer.slice(1)
+	else
+		return false
+}
+
+function csvList(type, separator, parsingFun) {
+	return function (buffer) {
+		let resList, resNode
+		for (;;) {
+			let res = parsingFun(buffer)
+			if (res) 
+				[resNode, buffer] = res
+			else break;
+			list.push(resNode)
+			if (!(buffer = consumePunct(separator, buffer)))
+				break;
+		}
+		return [new type({list: resList}), buffer]
 	}
 }
 
@@ -27,12 +56,6 @@ function disjunction(funs) {
 }
 
 function multiSequence(type, isMult, ...terms) {
-	function consumePunct(punctuator, buffer) {
-		if (punctuator == buffer[0].text)
-			return buffer.slice(1)
-		else
-			return false
-	}
 	function parseTerm(term, buffer, result) {
 		let res, fun = (isMult ? term[1] : term)
 		if (!(res = fun(buffer))) return false
@@ -110,4 +133,71 @@ const parseIdentifier = singleReg(Identifier, identifier)
 class PrimaryExpression extends Expression {}
 const parsePrimaryExpression = disjunction([
 	parseIdentifier, parseConstant,	parseStringLiteral,
+	sequence(Expression,'(', parseExpression, ')')])
+
+class PostfixExpression extends Expression {}
+const parsePostfixExpression = disjunction([
+	parsePrimaryExpression,
+	parseArrayIndexExpression,
+	parseFunctionCallExpression,
+	parseMemberExpression,
+	parseDereferenceMemberExpression,
+	parsePostIncrement,
+	parsePostDecrement,
+	parseInitializerList])
+
+class ArrayIndexExpression extends PostfixExpression {}
+const parseArrayIndexExpression =
+	  multiSequence(ArrayIndexExpression, ['name', parsePostfixExpression],
+					'[', ['index', parseExpression], ']')
+
+class ArgumentList extends Node {}
+const parseArgumentList = csvList(ArgumentList, ',' parseAssignmentExpression)
+
+class FunctionCallExpression extends PostfixExpression {}
+const parseFunctionCallExpression =
+	  multiSequence(FunctionCallExpression, ['name', parsePostfixExpression],
+					'(', ['args', parseArgumentList], ')')
+
+class MemberExpression extends PostfixExpression {}
+const parseMemberExpression =
+	  multiSequence(MemberExpression, ['name', parsePostfixExpression],
+					'.', ['index', parseIdentifier])
+
+class DereferenceMemberExpression extends PostfixExpression {}
+const parseDereferenceMemberExpression =
+	  multiSequence(DereferenceMemberExpression,
+					['name', parsePostfixExpression], '->',
+					['index', parseIdentifier])
+
+class PostIncrement extends PostfixExpression {}
+const parsePostIncrement =
+	  multiSequence(PostIncrement, ['val', parsePostfixExpression], '++')
+
+class PostDecrement extends PostfixExpression {}
+const parsePostDecrement =
+	  multiSequence(PostDecrement, ['val', parsePostfixExpression], '--')
+
+class InitializerList extends PostfixExpression {}
+const parseInitializerList = fixme()
+
+class AssignmentExpression extends Expression {}
+const parseAssignmentExpression = fixme()
+
+class UnaryExpression extends Expression {}
+const parseUnaryExpression =
+	  disjunction([parsePostfixExpression,
+				   parsePreIncrement,
+				   parsePreIncrement,
+				   parseUnaryOperation,
+				   parseSizeOf,
+				   parseSizeOfType])
+
+class PreIncrement extends UnaryExpression {}
+const parsePreIncrement =
+	  multisequence(PreIncrement, '++', ['val', parseUnaryExpression])
+
+class PreDecrement extends UnaryExpression {}
+const parsePreDecrement =
+	  multisequence(PreDecrement, '--', ['val', parseUnaryExpression])
 
