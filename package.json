@@ -4,7 +4,8 @@
   "description": "C-like interpreter for JS, hopefully with graphics eventually",
   "main": "index.js",
   "dependencies": {
-    "acorn": "^8.0.4"
+    "acorn": "^8.0.4",
+    "tape": "^5.3.1"
   },
   "devDependencies": {},
   "scripts": {
@@ -19,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/MechaMagpie/Chicory/issues"
   },
-  "homepage": "https://github.com/MechaMagpie/Chicory#readme"
+  "homepage": "https://github.com/MechaMagpie/Chicory#readme",
+  "keywords": [
+    "c",
+    "interpreter"
+  ]
 }

@@ -32,5 +32,6 @@ const parseExternalDeclaration =
 	  disjunction(parseFunctionDef)
 
 class TranslationUnit extends Node {}
-const parseTranslationUnit =
-	  indefList(TranslationUnit, parseExternalDeclaration)
+export const parseTranslationUnit =
+	multiSequence(TranslationUnit,
+				  ['statements', indefList(parseExternalDeclaration)])

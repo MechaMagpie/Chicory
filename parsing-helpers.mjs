@@ -15,7 +15,8 @@ export function fixme() {
 
 export function singleReg(type, regex) {
 	return function (buffer) {
-		let res = regex.match(buffer[0].text)
+		if (!buffer[0]) return false
+		let res = regex.exec(buffer[0].text)
 		if (res && res[0].length == buffer[0].text.length) {
 			return [new type({val: buffer[0]}), buffer.slice(1)]
 		}
@@ -23,7 +24,7 @@ export function singleReg(type, regex) {
 }
 
 function consumePunct(punctuator, buffer) {
-	if (punctuator == buffer[0].text)
+	if (buffer[0] && punctuator == buffer[0].text)
 		return buffer.slice(1)
 	else
 		return false
@@ -54,7 +55,7 @@ export function csvList(separator, parsingFun) {
 
 export function indefList(parsingFun) {
 	return function (buffer) {
-		let resList, res
+		let resList = [], res
 		while (res = parsingFun(buffer)) {
 			buffer = res[1]
 			resList.push(res[0])
@@ -65,7 +66,7 @@ export function indefList(parsingFun) {
 
 export function disjunction(...funs) {
 	return function (buffer) {
-		for (fun of funs) {
+		for (const fun of funs) {
 			let res = fun(buffer)
 			if (res) return res
 		}
@@ -85,15 +86,17 @@ function baseSequence(type, isMult, ...terms) {
 	}
 	return function (buffer) {
 		let result = {}
-		for (term of terms) {
-			if (typeof term == 'string')
+		for (const term of terms) {
+			if (typeof term == 'string') {
 				if (!(buffer = consumePunct(term, buffer)))
 					return false
+			}
 			else {
 				let res1 = parseTerm(term, buffer, result)
-				if (!res1)
+				if (!res1) {
 					return false
-				[result, buffer] = res1				
+				}
+				[result, buffer] = res1
 			}
 		}
 		if (isMult)
@@ -104,11 +107,11 @@ function baseSequence(type, isMult, ...terms) {
 }
 
 export function multiSequence(type, ...terms) {
-	return baseSequence(type, true, terms)
+	return baseSequence(type, true, ...terms)
 }
 
 export function sequence(type, ...terms) {
-	return baseSequence(type, false, terms)
+	return baseSequence(type, false, ...terms)
 }
 
 export function preFix(type, parsingFun, prefix) {
