@@ -46,11 +46,11 @@ function eatWs(src, i) {
 
 const addTokens = [eatWs, addNum, addPunct, addId, addStrConst,
 				   addCharConst]
-function lexSource(src) {
+export function lexSource(src) {
 	let i = 0
 	let dest = []
-	lexLoop: while (i < src.length - 1)
-		for(fun of addTokens) {
+	lexLoop: while (i < src.length)
+		for(let fun of addTokens) {
 			let r = fun(src, i, dest)
 			if (r) {
 				i = r

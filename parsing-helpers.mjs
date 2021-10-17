@@ -1,5 +1,5 @@
 // Helpers
-class Node {
+export class Node {
 	constructor(children) {
 		for (const child in children) {
 			this[child] = children[child]
@@ -7,16 +7,16 @@ class Node {
 	}
 }
 
-function fixme {
+export function fixme() {
 	return function(buffer) {
 		throw 'TODO'
 	}
 }
 
-function singleReg(type, regex) {
+export function singleReg(type, regex) {
 	return function (buffer) {
-		let res = regex.match(buffer[0])
-		if (res && res[0].length == buffer[0].length) {
+		let res = regex.match(buffer[0].text)
+		if (res && res[0].length == buffer[0].text.length) {
 			return [new type({val: buffer[0]}), buffer.slice(1)]
 		}
 	}
@@ -29,7 +29,17 @@ function consumePunct(punctuator, buffer) {
 		return false
 }
 
-function csvList(type, separator, parsingFun) {
+export function optTerm(parsingFun) {
+	return function (buffer) {
+		let res = parsingFun(buffer)
+		if (res)
+			return res
+		else
+			return [null, buffer]
+	}
+}
+
+export function csvList(separator, parsingFun) {
 	return function (buffer) {
 		let resList, res
 		while (res = parsingFun(buffer)) {
@@ -38,22 +48,22 @@ function csvList(type, separator, parsingFun) {
 			if (!(buffer = consumePunct(separator, buffer)))
 				break;
 		}
-		return [new type({list: resList}), buffer]
+		return [resList, buffer]
 	}
 }
 
-function indefList(type, parsingFun) {
+export function indefList(parsingFun) {
 	return function (buffer) {
 		let resList, res
 		while (res = parsingFun(buffer)) {
 			buffer = res[1]
 			resList.push(res[0])
 		}
-		return [new type({list: resList}), buffer]
+		return [resList, buffer]
 	}
 }
 
-function disjunction(funs) {
+export function disjunction(...funs) {
 	return function (buffer) {
 		for (fun of funs) {
 			let res = fun(buffer)
@@ -93,23 +103,23 @@ function baseSequence(type, isMult, ...terms) {
 	}
 }
 
-function multiSequence(type, ...terms) {
+export function multiSequence(type, ...terms) {
 	return baseSequence(type, true, terms)
 }
 
-function sequence(type, ...terms) {
+export function sequence(type, ...terms) {
 	return baseSequence(type, false, terms)
 }
 
-function preFix(type, parsingFun, prefix) {
+export function preFix(type, parsingFun, prefix) {
 	return new multiSequence(type, prefix, ['val', parsingFun])
 }
 
-function postFix(type, parsingFun, postfix) {
+export function postFix(type, parsingFun, postfix) {
 	return new multiSequence(type, ['val', parsingFun], postfix)
 }
 
-function infix(type, parsingFun, infix) {
+export function infix(type, parsingFun, infix) {
 	return new multiSequence(type, ['left', parsingFun],
 							 infix, ['right', parsingFun])
 }
