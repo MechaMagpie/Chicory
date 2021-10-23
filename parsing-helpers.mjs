@@ -1,9 +1,22 @@
 // Helpers
 export class Node {
 	constructor(children) {
+		this.childList = []
 		for (const child in children) {
 			this[child] = children[child]
+			this.childList.push(child)
 		}
+	}
+
+	treeStr() {
+		let retStr = this.constructor.name + '[ '
+		for (const c of this.childList) {
+			
+			retStr += c
+			retStr += ' '
+		}
+		retStr += ']'
+		return retStr
 	}
 }
 

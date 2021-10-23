@@ -18,5 +18,6 @@ test('basic parsing test', async function(t) {
 	let text = await source('basic.c')
 	let lexed = lexer.lexSource(text)
 	let parsed = parser.parseTranslationUnit(lexed)
+	console.log(parsed[0].treeStr())
 	t.ok(parsed)
 })
